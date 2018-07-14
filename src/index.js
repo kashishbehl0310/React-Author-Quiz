@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import AuthorQuiz from './AuthorQuiz';
 import registerServiceWorker from './registerServiceWorker';
-import { shuffle, sample } from 'underscore';
+import {shuffle, sample} from 'underscore';
 
 const authors = [
     {
@@ -46,24 +46,34 @@ const authors = [
     }
   ];
 
-  function getTurnData(authors) {
-      const allBooks = authors.reduce((p, c, i) => {
-          return p.concat(c.books)
-      }, [])
-      const randomBooks = shuffle(allBooks).slice(0,4);
-      const answer = sample(randomBooks);
+function getTurnData(authors) {
+    const allBooks = authors.reduce(function (p, c, i) {
+        return p.concat(c.books);
+    }, []);
+    const fourRandomBooks = shuffle(allBooks).slice(0,4);
+    const answer = sample(fourRandomBooks);
 
-      return {
-          books: randomBooks,
-          author: authors.find((author) => author.books.some((title) => title === answer))
-      }
+    return {
+        books: fourRandomBooks,
+        author: authors.find((author) => 
+            author.books.some((title) => 
+                title === answer))
+    }
+}
 
-  }
+const state = {
+    turnData: getTurnData(authors),
+    highlight: ''
+};
 
-  const state = {
-      turnData : getTurnData(authors)
-      
-  }
+function onAnswerSelected(answer) {
+  const isCorrect = state.turnData.author.books.some((book) => book === answer);
+  state.highlight = isCorrect ? 'correct' : 'wrong';
+  render();
+}
 
-ReactDOM.render(<AuthorQuiz {...state} />, document.getElementById('root'));
+function render() {
+  ReactDOM.render(<AuthorQuiz {...state} onAnswerSelected={onAnswerSelected} />, document.getElementById('root'));
+}
+render();
 registerServiceWorker();
